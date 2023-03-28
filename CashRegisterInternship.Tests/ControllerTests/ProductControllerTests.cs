@@ -27,9 +27,11 @@ namespace CashRegisterInternship.Tests.ControllerTests
             //Arrange
             var expectedResult = Mock.Of<List<Product>>();
             _productRepoMock.Setup(x => x.GetAllProductsAsync()).ReturnsAsync(expectedResult);
+
             //Act
             var result = await _sut.GetAllProducts();
-            //AssertK
+
+            //Assert
             result.Should().NotBeNull();
             result.Should().BeOfType(typeof(OkObjectResult));
         }
@@ -40,8 +42,10 @@ namespace CashRegisterInternship.Tests.ControllerTests
             var id = Mock.Of<Product>().Id;
             var expectedResult = Mock.Of<Product>();
             _productRepoMock.Setup(x => x.GetProductByIdAsync(id)).ReturnsAsync(expectedResult);
+
             //Act
             var result = await _sut.GetProductByIdAsync(id);
+
             //Assert
             result.Should().BeOfType(typeof(OkObjectResult));
         }
@@ -55,8 +59,10 @@ namespace CashRegisterInternship.Tests.ControllerTests
             _mapperMock.Setup(x => x.Map<Product>(enteredProductDto)).Returns(mappedProduct);
 
 			_productRepoMock.Setup(x => x.AddProduct(mappedProduct)).Returns(true);
+
 			//Act
 			var result = _sut.AddProduct(enteredProductDto);
+
 			//Assert
 			result.Should().BeOfType(typeof(OkObjectResult));
 		}
