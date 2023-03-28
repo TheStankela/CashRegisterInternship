@@ -1,4 +1,6 @@
-﻿namespace CashRegister.Domain.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CashRegister.Domain.Models
 {
     public class Product
     {

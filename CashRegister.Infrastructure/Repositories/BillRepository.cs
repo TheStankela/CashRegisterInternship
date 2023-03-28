@@ -2,7 +2,6 @@
 using CashRegister.Domain.Models;
 using CashRegister.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
-
 namespace CashRegister.Infrastructure.Repositories
 {
 	public class BillRepository : IBillRepository
