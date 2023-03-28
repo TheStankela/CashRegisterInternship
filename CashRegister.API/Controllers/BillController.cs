@@ -25,7 +25,7 @@ namespace CashRegister.API.Controllers
 			return Ok(result);
 		}
 
-		[HttpGet("{id}")]
+		[HttpGet("{billNumber}")]
 		public async Task<IActionResult> GetBillByBillNumberAsync(string billNumber)
 		{
 			if (!_billRepository.BillExists(billNumber))
