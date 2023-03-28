@@ -73,14 +73,15 @@ namespace CashRegister.API.Controllers
 		[HttpDelete]
 		public async Task<IActionResult> DeleteProduct(int id)
 		{
-			var product = await _productRepository.GetProductByIdAsync(id);
-			if (product == null)
+			
+			if (!_productRepository.ProductExists(id))
 			{
 				ModelState.AddModelError("", "Product does not exist.");
 				return BadRequest(ModelState);
 			}
+			var productToDelete = await _productRepository.GetProductByIdAsync(id);
 
-			if (!_productRepository.DeleteProduct(product))
+			if (!_productRepository.DeleteProduct(productToDelete))
 			{
 				ModelState.AddModelError("", "Something went wrong while saving.");
 				return BadRequest(ModelState);
