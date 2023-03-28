@@ -17,6 +17,7 @@ namespace CashRegister.API.Controllers
 			_billRepository = billRepository;
             _mapper = mapper;
 		}
+
 		[HttpGet]
 		public async Task<IActionResult> GetAllBills()
 		{
@@ -30,9 +31,9 @@ namespace CashRegister.API.Controllers
 			if (!_billRepository.BillExists(billNumber))
 				return NotFound();
 
-			var product = await _billRepository.GetBillByBillNumberAsync(billNumber);
+			var bill = await _billRepository.GetBillByBillNumberAsync(billNumber);
 
-			return Ok(product);
+			return Ok(bill);
 		}
 
 		[HttpPost]
@@ -53,7 +54,7 @@ namespace CashRegister.API.Controllers
 		}
 
 		[HttpPut]
-		public IActionResult UpdateProduct(string billNumber, [FromBody] BillDto billDto)
+		public IActionResult UpdateBill(string billNumber, [FromBody] BillDto billDto)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
@@ -70,7 +71,7 @@ namespace CashRegister.API.Controllers
 		}
 
 		[HttpDelete]
-		public async Task<IActionResult> DeleteProduct(string billNumber)
+		public async Task<IActionResult> DeleteBill(string billNumber)
 		{
 
 			if (!_billRepository.BillExists(billNumber))
