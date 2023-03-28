@@ -2,9 +2,6 @@ using Microsoft.OpenApi.Models;
 using CashRegister.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using CashRegister.Infrastructure.Repositories;
-using AutoMapper;
-using System.Reflection;
-using CashRegister.API.Helpers;
 using CashRegister.Domain.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);

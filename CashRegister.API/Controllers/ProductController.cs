@@ -11,9 +11,7 @@ namespace CashRegister.API.Controllers
 	public class ProductController : ControllerBase
 	{
 		private readonly IProductRepository _productRepository;
-
 		private readonly IMapper _mapper;
-
 		public ProductController(IProductRepository productRepository, IMapper mapper)
 		{
 			_productRepository = productRepository;

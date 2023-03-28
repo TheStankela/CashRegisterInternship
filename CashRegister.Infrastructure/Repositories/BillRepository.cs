@@ -2,11 +2,6 @@
 using CashRegister.Domain.Models;
 using CashRegister.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CashRegister.Infrastructure.Repositories
 {

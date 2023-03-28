@@ -12,10 +12,8 @@ namespace CashRegister.API.Helpers
 			CreateMap<Product, ProductDto>().ReverseMap();
 			CreateMap<Bill, BillDto>();
 			CreateMap<Bill, BillDto>().ReverseMap();
-			CreateMap<ProductBill, ProductBillApiDto>();
-			CreateMap<ProductBill, ProductBillApiDto>().ReverseMap();
-			CreateMap<ProductBillApiDto, ProductBillRepoDto>();
-			CreateMap<ProductBillApiDto, ProductBillRepoDto>().ReverseMap();
+			CreateMap<ProductBill, ProductBillDto>();
+			CreateMap<ProductBill, ProductBillDto>().ReverseMap();
 		}
     }
 }

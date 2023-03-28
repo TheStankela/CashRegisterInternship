@@ -1,6 +1,6 @@
 ﻿namespace CashRegister.API.Dto
 {
-	public class ProductBillApiDto
+	public class ProductBillDto
 	{
 		public int ProductQuantity { get; set; }
 	}

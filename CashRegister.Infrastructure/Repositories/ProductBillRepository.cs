@@ -2,7 +2,6 @@
 using CashRegister.Domain.Models;
 using CashRegister.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
-using CashRegister.API.Dto;
 
 namespace CashRegister.Infrastructure.Repositories
 {
@@ -22,24 +21,32 @@ namespace CashRegister.Infrastructure.Repositories
 		{
 			return await _context.ProductBills.ToListAsync();
 		}
-		public async Task<bool> AddProductBill(int productId, string billNumber, ProductBillRepoDto productBillDto)
+		public async Task<bool> AddProductToBill(int productId, string billNumber, ProductBill productBill)
 		{
 			var productEntity = await _productRepository.GetProductByIdAsync(productId);
 			var billEntity = await _billRepository.GetBillByBillNumberAsync(billNumber);
 
-			var productBill = new ProductBill
+			var productBillToAdd = new ProductBill
 			{
 				Bill = billEntity,
 				Product = productEntity,
-				ProductQuantity = productBillDto.ProductQuantity,
-				ProductsPrice = productEntity.Price * productBillDto.ProductQuantity
+				ProductQuantity = productBill.ProductQuantity,
+				ProductsPrice = productEntity.Price * productBill.ProductQuantity
 			};
 
 			billEntity.TotalPrice += productBill.ProductsPrice;
-			
 
+			_context.ProductBills.Add(productBillToAdd);
+			return Save();
 
-			_context.ProductBills.Add(productBill);
+		}
+		public async Task<bool> DeleteProductFromBill(int productId, string billNumber)
+		{
+			var productBill = await _context.ProductBills.FirstOrDefaultAsync(x => x.ProductId == productId && x.BillNumber == billNumber);
+			if (productBill == null)
+				return false;
+
+			_context.ProductBills.Remove(productBill);
 			return Save();
 
 		}
@@ -49,5 +56,9 @@ namespace CashRegister.Infrastructure.Repositories
 			return saved > 0 ? true : false;
 		}
 
+		public bool ProductBillExists(int productId, string billNumber)
+		{
+			return _context.ProductBills.Any(x => x.ProductId == productId && x.BillNumber == billNumber);
+		}
 	}
 }
