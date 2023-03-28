@@ -5,6 +5,7 @@ using CashRegister.Infrastructure.Repositories;
 using AutoMapper;
 using System.Reflection;
 using CashRegister.API.Helpers;
+using CashRegister.Domain.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +19,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IBillRepository, BillRepository>();
 
 builder.Services.AddSwaggerGen(options =>
 {
