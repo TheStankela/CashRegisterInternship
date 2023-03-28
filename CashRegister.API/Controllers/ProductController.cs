@@ -54,7 +54,7 @@ namespace CashRegister.API.Controllers
 		}
 
 		[HttpPut]
-		public async Task<IActionResult> UpdateProduct(int id, [FromBody] ProductDto productDto)
+		public IActionResult UpdateProduct(int id, [FromBody] ProductDto productDto)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
