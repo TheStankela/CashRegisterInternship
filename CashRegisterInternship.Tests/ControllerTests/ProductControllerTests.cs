@@ -6,7 +6,6 @@ using CashRegister.Infrastructure.Repositories;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using System.Runtime.CompilerServices;
 
 namespace CashRegisterInternship.Tests.ControllerTests
 {
