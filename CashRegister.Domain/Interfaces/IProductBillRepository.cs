@@ -4,10 +4,12 @@ namespace CashRegister.Infrastructure.Repositories
 {
 	public interface IProductBillRepository
 	{
-		Task<bool> AddProductToBill(int productId, string billNumber, ProductBill productBill);
+		bool AddProductToBill(ProductBill productBill);
 		Task<List<ProductBill>> GetAllProductBills();
 		bool Save();
-		Task<bool> DeleteProductFromBill(int productId, string billNumber);
+		Task<bool> DeleteProductFromBill(ProductBill productBill);
 		bool ProductBillExists(int productId, string billNumber);
+		Task<List<ProductBill>> GetProductsFromBill(string billNumber);
+		Task<ProductBill> GetProductBill(int productId, string billNumber);
 	}
 }
