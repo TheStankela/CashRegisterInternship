@@ -1,6 +1,7 @@
 using AutoMapper;
 using CashRegister.API.Controllers;
 using CashRegister.API.Dto;
+using CashRegister.Application.Services;
 using CashRegister.Domain.Models;
 using CashRegister.Infrastructure.Repositories;
 using FluentAssertions;
@@ -11,14 +12,14 @@ namespace CashRegisterInternship.Tests.ControllerTests
 {
     public class ProductControllerTests
     {
-        private readonly Mock<IProductRepository> _productRepoMock = new Mock<IProductRepository>();
+        private readonly Mock<IProductService> _productRepoMock = new Mock<IProductService>();
         private readonly Mock<IMapper> _mapperMock = new Mock<IMapper>();
         private readonly ProductController _sut;
 
 
         public ProductControllerTests()
         {
-            _sut = new ProductController(_productRepoMock.Object, _mapperMock.Object);
+            _sut = new ProductController(_productRepoMock.Object);
         }
         [Fact]
         public async Task ProductController_GetAllProducts_ShouldReturnOK()
@@ -57,7 +58,7 @@ namespace CashRegisterInternship.Tests.ControllerTests
 
             _mapperMock.Setup(x => x.Map<Product>(enteredProductDto)).Returns(mappedProduct);
 
-			_productRepoMock.Setup(x => x.AddProduct(mappedProduct)).Returns(true);
+			//_productRepoMock.Setup(x => x.AddProduct(mappedProduct)).Returns(true);
 
 			//Act
 			var result = _sut.AddProduct(enteredProductDto);
