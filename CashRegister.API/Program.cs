@@ -3,6 +3,8 @@ using CashRegister.Infrastructure.Context;
 using Microsoft.EntityFrameworkCore;
 using CashRegister.Infrastructure.Repositories;
 using CashRegister.Domain.Interfaces;
+using CashRegister.Application.Services;
+using CashRegister.Application.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,7 +19,11 @@ builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IBillRepository, BillRepository>();
-builder.Services.AddScoped<IProductBillRepository, ProductBillRepository>();   
+builder.Services.AddScoped<IProductBillRepository, ProductBillRepository>();
+builder.Services.AddScoped<IBillService, BillService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IProductBillService, ProductBillService>();
+builder.Services.AddScoped<IPriceCalculatorService,  PriceCalculatorService>();
 
 builder.Services.AddSwaggerGen(options =>
 {
