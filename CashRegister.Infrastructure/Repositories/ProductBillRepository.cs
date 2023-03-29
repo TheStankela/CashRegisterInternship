@@ -8,44 +8,23 @@ namespace CashRegister.Infrastructure.Repositories
 	public class ProductBillRepository : IProductBillRepository
 	{
 		private readonly CashRegisterDBContext _context;
-		private readonly IProductRepository _productRepository;
-		private readonly IBillRepository _billRepository;
 
-		public ProductBillRepository(CashRegisterDBContext context, IProductRepository productRepository, IBillRepository billRepository)
+		public ProductBillRepository(CashRegisterDBContext context)
 		{
 			_context = context;
-			_productRepository = productRepository;
-			_billRepository = billRepository;
 		}
 		public async Task<List<ProductBill>> GetAllProductBills()
 		{
 			return await _context.ProductBills.ToListAsync();
 		}
-		public async Task<bool> AddProductToBill(int productId, string billNumber, ProductBill productBill)
+		public bool AddProductToBill(ProductBill productBill)
 		{
-			var productEntity = await _productRepository.GetProductByIdAsync(productId);
-			var billEntity = await _billRepository.GetBillByBillNumberAsync(billNumber);
-
-			var productBillToAdd = new ProductBill
-			{
-				Bill = billEntity,
-				Product = productEntity,
-				ProductQuantity = productBill.ProductQuantity,
-				ProductsPrice = productEntity.Price * productBill.ProductQuantity
-			};
-
-			billEntity.TotalPrice += productBill.ProductsPrice;
-
-			_context.ProductBills.Add(productBillToAdd);
+			_context.ProductBills.Add(productBill);
 			return Save();
 
 		}
-		public async Task<bool> DeleteProductFromBill(int productId, string billNumber)
+		public async Task<bool> DeleteProductFromBill(ProductBill productBill)
 		{
-			var productBill = await _context.ProductBills.FirstOrDefaultAsync(x => x.ProductId == productId && x.BillNumber == billNumber);
-			if (productBill == null)
-				return false;
-
 			_context.ProductBills.Remove(productBill);
 			return Save();
 
@@ -59,6 +38,16 @@ namespace CashRegister.Infrastructure.Repositories
 		public bool ProductBillExists(int productId, string billNumber)
 		{
 			return _context.ProductBills.Any(x => x.ProductId == productId && x.BillNumber == billNumber);
+		}
+
+		public async Task<List<ProductBill>> GetProductsFromBill(string billNumber)
+		{
+			return await _context.ProductBills.Where(x => x.BillNumber == billNumber).ToListAsync();
+		}
+
+		public async Task<ProductBill> GetProductBill(int productId, string billNumber)
+		{
+			return await _context.ProductBills.FirstOrDefaultAsync(x => x.ProductId == productId && x.BillNumber == billNumber);
 		}
 	}
 }

@@ -33,9 +33,9 @@ namespace CashRegister.Infrastructure.Repositories
 			return _context.Bills.ToListAsync();
 		}
 
-		public Task<Bill> GetBillByBillNumberAsync(string billNumber)
+		public async Task<Bill> GetBillByBillNumberAsync(string billNumber)
 		{
-			return _context.Bills.FirstOrDefaultAsync(x => x.BillNumber == billNumber);
+			return await _context.Bills.FirstOrDefaultAsync(x => x.BillNumber == billNumber);
 		}
 
 		public bool Save()
