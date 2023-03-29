@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using CashRegister.API.Dto;
-using CashRegister.Domain.Models;
-using CashRegister.Infrastructure.Repositories;
+using CashRegister.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CashRegister.API.Controllers
@@ -10,24 +9,22 @@ namespace CashRegister.API.Controllers
 	[Route("api/[controller]")]
 	public class ProductController : ControllerBase
 	{
-		private readonly IProductRepository _productRepository;
-		private readonly IMapper _mapper;
-		public ProductController(IProductRepository productRepository, IMapper mapper)
+		private readonly IProductService _productService;
+		public ProductController(IProductService productService)
 		{
-			_productRepository = productRepository;
-			_mapper = mapper;
+			_productService = productService;
 		}
 		[HttpGet]
 		public async Task<IActionResult> GetAllProducts()
 		{
-			var result = await _productRepository.GetAllProductsAsync();
+			var result = await _productService.GetAllProductsAsync();
 			return Ok(result);
 		}
 
 		[HttpGet("{id}")]
 		public async Task<IActionResult> GetProductByIdAsync(int id)
 		{
-			var product = await _productRepository.GetProductByIdAsync(id);
+			var product = await _productService.GetProductByIdAsync(id);
 			if (product == null)
 				return NotFound("Product not found");
 
@@ -40,9 +37,7 @@ namespace CashRegister.API.Controllers
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			var productMapped = _mapper.Map<Product>(productDto);
-
-			if (!_productRepository.AddProduct(productMapped))
+			if (!_productService.AddProduct(productDto))
 			{
 				ModelState.AddModelError("", "Error adding new product.");
 				return BadRequest(ModelState);
@@ -52,17 +47,12 @@ namespace CashRegister.API.Controllers
 		}
 
 		[HttpPut]
-		public IActionResult UpdateProduct(int id, [FromBody] ProductDto productDto)
+		public IActionResult UpdateProduct(int productId, [FromBody] ProductDto productDto)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			if (!_productRepository.ProductExists(id))
-				return NotFound("Product does not exist");
-
-			var productMapped = _mapper.Map<Product>(productDto);
-
-			if (!_productRepository.UpdateProduct(productMapped))
+			if (!_productService.UpdateProduct(productId, productDto))
 				return BadRequest("Error while saving.");
 
 			return StatusCode(200, "Successfully updated.");
@@ -71,15 +61,7 @@ namespace CashRegister.API.Controllers
 		[HttpDelete]
 		public async Task<IActionResult> DeleteProduct(int id)
 		{
-			
-			if (!_productRepository.ProductExists(id))
-			{
-				ModelState.AddModelError("", "Product does not exist.");
-				return BadRequest(ModelState);
-			}
-			var productToDelete = await _productRepository.GetProductByIdAsync(id);
-
-			if (!_productRepository.DeleteProduct(productToDelete))
+			if (!await _productService.DeleteProduct(id))
 			{
 				ModelState.AddModelError("", "Something went wrong while saving.");
 				return BadRequest(ModelState);

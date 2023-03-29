@@ -1,7 +1,5 @@
-﻿using AutoMapper;
-using CashRegister.API.Dto;
-using CashRegister.Domain.Interfaces;
-using CashRegister.Domain.Models;
+﻿using CashRegister.API.Dto;
+using CashRegister.Application.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CashRegister.API.Controllers
@@ -10,41 +8,35 @@ namespace CashRegister.API.Controllers
     [Route("api/[controller]")]
     public class BillController : ControllerBase
     {
-		private readonly IBillRepository _billRepository;
-        private readonly IMapper _mapper;
-		public BillController(IBillRepository billRepository, IMapper mapper)
+		private readonly IBillService _billService;
+		public BillController(IBillService billService)
         {
-			_billRepository = billRepository;
-            _mapper = mapper;
+			_billService = billService;
 		}
 
 		[HttpGet]
 		public async Task<IActionResult> GetAllBills()
 		{
-			var result = await _billRepository.GetAllBillsAsync();
+			var result = await _billService.GetAllBillsAsync();
+
 			return Ok(result);
 		}
 
 		[HttpGet("{billNumber}")]
 		public async Task<IActionResult> GetBillByBillNumberAsync(string billNumber)
 		{
-			if (!_billRepository.BillExists(billNumber))
-				return NotFound();
-
-			var bill = await _billRepository.GetBillByBillNumberAsync(billNumber);
+			var bill = await _billService.GetBillByBillNumberAsync(billNumber);
 
 			return Ok(bill);
 		}
 
 		[HttpPost]
-		public IActionResult AddBill(BillDto billDto)
+		public async Task<IActionResult> AddBill(BillDto billDto)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			var billMapped = _mapper.Map<Bill>(billDto);
-
-			if (!_billRepository.AddBill(billMapped))
+			if (!await _billService.AddBill(billDto))
 			{
 				ModelState.AddModelError("", "Error adding new bill.");
 				return BadRequest(ModelState);
@@ -59,12 +51,7 @@ namespace CashRegister.API.Controllers
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			if (!_billRepository.BillExists(billNumber))
-				return NotFound("Bill does not exist");
-
-			var billMapped = _mapper.Map<Bill>(billDto);
-
-			if (!_billRepository.UpdateBill(billMapped))
+			if (!_billService.UpdateBill(billNumber, billDto))
 				return BadRequest("Error while saving.");
 
 			return StatusCode(200, "Successfully updated.");
@@ -73,15 +60,7 @@ namespace CashRegister.API.Controllers
 		[HttpDelete]
 		public async Task<IActionResult> DeleteBill(string billNumber)
 		{
-
-			if (!_billRepository.BillExists(billNumber))
-			{
-				ModelState.AddModelError("", "Bill does not exist.");
-				return BadRequest(ModelState);
-			}
-			var billToDelete = await _billRepository.GetBillByBillNumberAsync(billNumber);
-
-			if (!_billRepository.DeleteBill(billToDelete))
+			if (!await _billService.DeleteBill(billNumber))
 			{
 				ModelState.AddModelError("", "Something went wrong while saving.");
 				return BadRequest(ModelState);
