@@ -1,6 +1,11 @@
 ﻿using CashRegister.API.Dto;
+using CashRegister.API.Mediator.Commands;
+using CashRegister.API.Mediator.Commands.BillCommands;
+using CashRegister.API.Mediator.Querries;
+using CashRegister.API.Mediator.Querries.BillQuerries;
 using CashRegister.Application.Interfaces;
 using CashRegister.Application.Services;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CashRegister.API.Controllers
@@ -9,94 +14,67 @@ namespace CashRegister.API.Controllers
 	[Route("api/[controller]")]
 	public class BillController : ControllerBase
 	{
-		private readonly IBillService _billService;
-		private readonly IValidationService _validationService;
-		public BillController(IBillService billService, IValidationService validationService)
+		private readonly IMediator _mediator;
+		public BillController(IMediator mediator)
 		{
-			_billService = billService;
-			_validationService = validationService;
+			_mediator = mediator;
 		}
 
 		[HttpGet]
 		public async Task<IActionResult> GetAllBills()
 		{
-			var result = await _billService.GetAllBillsAsync();
+			var querry = new GetAllBillsQuerry();
+			var result = await _mediator.Send(querry);
 			return Ok(result);
 		}
 
 		[HttpGet("{billNumber}")]
 		public async Task<IActionResult> GetBillByBillNumberAsync(string billNumber)
 		{
-			if (!_billService.BillExists(billNumber))
-				return NotFound("Bill does not exist");
-
-			var bill = await _billService.GetBillByBillNumberAsync(billNumber);
-			return Ok(bill);
+			var querry = new GetBillByNumberQuerry(billNumber);
+			var result = await _mediator.Send(querry);
+			return result != null ? Ok(result) : NotFound("Bill does not exist");
 		}
 
 		[HttpGet("{billNumber}/{currency}")]
 		public async Task<IActionResult> GetBillWithUpdatedCurrency(string billNumber, string currency)
 		{
-			if (!_billService.BillExists(billNumber))
-				return NotFound("Bill does not exist");
-
-			var billToGet = await _billService.GetBillByBillNumberAsync(billNumber);
-
-			var updatedBill = await _billService.DisplayBill(billToGet, currency);
-			return Ok(updatedBill);
+			var querry = new GetBillWithUpdatedCurrencyQuerry(billNumber, currency);
+			var result = await _mediator.Send(querry);
+			return result != null ? Ok(result) : NotFound("Bill does not exist");
 		}
 
 		[HttpPost]
-		public IActionResult AddBill(AddBillDto billDto)
+		public async Task<IActionResult> AddBill(AddBillDto billDto)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			if (!_validationService.ValidateBill(billDto))
-			{
-				ModelState.AddModelError("", "One or more validation errors occured.");
-				return StatusCode(400, ModelState);
-			}
+			var querry = new CreateBillCommand(billDto);
+			var result = await _mediator.Send(querry);
 
-			if (!_billService.AddBill(billDto))
-			{
-				ModelState.AddModelError("", "Error adding new bill.");
-				return StatusCode(500, ModelState);
-			}
-
-			return Ok("Bill created successfully.");
+			return result == true ? Ok("Added successfully.") : BadRequest(ModelState);
 		}
 
 		[HttpPut]
-		public IActionResult UpdateBill(string billNumber, [FromBody] AddBillDto billDto)
+		public async Task<IActionResult> UpdateBill(string billNumber, [FromBody] AddBillDto billDto)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			if (!_billService.BillExists(billNumber))
-				return NotFound("Bill does not exist.");
+			var querry = new UpdateBillCommand(billDto, billNumber);
+			var result = await _mediator.Send(querry);
 
-			if (!_billService.UpdateBill(billNumber, billDto))
-				return BadRequest("Error while saving.");
-
-			return StatusCode(200, "Successfully updated.");
+			return result == true ? Ok("Updated successfully.") : BadRequest(ModelState);
 		}
 
 		[HttpDelete]
 		public async Task<IActionResult> DeleteBill(string billNumber)
 		{
-			if (!_billService.BillExists(billNumber))
-				return NotFound("Bill not found.");
+			var querry = new DeleteBillCommand(billNumber);
+			var result = await _mediator.Send(querry);
 
-			var billToDelete = await _billService.GetBillByBillNumberAsNoTracking(billNumber);
-
-			if (!_billService.DeleteBill(billToDelete))
-			{
-				ModelState.AddModelError("", "Something went wrong while saving.");
-				return BadRequest(ModelState);
-			}
-
-			return Ok("Bill deleted successfully.");
+			return result == true ? Ok("Successfully deleted!") : NotFound("Bill does not exist.");
 		}
 	}
 }

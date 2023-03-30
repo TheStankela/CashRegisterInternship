@@ -1,7 +1,11 @@
 ﻿using AutoMapper;
 using CashRegister.API.Dto;
+using CashRegister.API.Mediator.Commands.ProductCommands;
+using CashRegister.API.Mediator.Querries.ProductQuerries;
 using CashRegister.Application.Services;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace CashRegister.API.Controllers
 {
@@ -10,64 +14,61 @@ namespace CashRegister.API.Controllers
 	public class ProductController : ControllerBase
 	{
 		private readonly IProductService _productService;
-		public ProductController(IProductService productService)
+		private readonly IMediator _mediator;
+		public ProductController(IProductService productService, IMediator mediator)
 		{
 			_productService = productService;
+			_mediator = mediator;
 		}
 		[HttpGet]
 		public async Task<IActionResult> GetAllProducts()
 		{
-			var result = await _productService.GetAllProductsAsync();
+			var querry = new GetAllProductsQuerry();
+			var result = await _mediator.Send(querry);
+
 			return Ok(result);
 		}
 
 		[HttpGet("{id}")]
 		public async Task<IActionResult> GetProductByIdAsync(int id)
 		{
-			var product = await _productService.GetProductByIdAsync(id);
-			if (product == null)
-				return NotFound("Product not found");
 
-			return Ok(product);
+			var querry = new GetProductByIdQuerry(id);
+			var result = await _mediator.Send(querry);
+
+			return result != null ? Ok(result) : NotFound("Product does not exist.");
 		}
 
 		[HttpPost]
-		public IActionResult AddProduct(ProductDto productDto)
+		public async Task<IActionResult> AddProduct(ProductDto productDto)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			if (!_productService.AddProduct(productDto))
-			{
-				ModelState.AddModelError("", "Error adding new product.");
-				return BadRequest(ModelState);
-			}
-
-			return Ok("Product added successfully.");
+			var querry = new AddProductCommand(productDto);
+			var result = await _mediator.Send(querry);
+			return result == true ? Ok("Successfully added.") : BadRequest(ModelState);
 		}
 
 		[HttpPut]
-		public IActionResult UpdateProduct(int productId, [FromBody] ProductDto productDto)
+		public async Task<IActionResult> UpdateProduct(int productId, [FromBody] ProductDto productDto)
 		{
 			if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-			if (!_productService.UpdateProduct(productId, productDto))
-				return BadRequest("Error while saving.");
+			var querry = new UpdateProductCommand(productId, productDto);
+			var result = await _mediator.Send(querry);
 
-			return StatusCode(200, "Successfully updated.");
+			return result == true ? Ok("Updated successfully.") : BadRequest(ModelState);
 		}
 
 		[HttpDelete]
 		public async Task<IActionResult> DeleteProduct(int id)
 		{
-			if (!await _productService.DeleteProduct(id))
-			{
-				ModelState.AddModelError("", "Something went wrong while saving.");
-				return BadRequest(ModelState);
-			}
+			var querry = new DeleteProductCommand(id);
+			var result = await _mediator.Send(querry);
 
-			return Ok("Product deleted successfully.");
+			return result == true ? Ok("Deleted successfully") : BadRequest(ModelState);
 		}
 		
 	}

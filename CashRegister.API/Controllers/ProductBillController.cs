@@ -1,5 +1,8 @@
 ﻿using CashRegister.API.Dto;
+using CashRegister.API.Mediator.Commands.ProductBillCommands;
+using CashRegister.API.Mediator.Querries.ProductBillQuerries;
 using CashRegister.Application.Interfaces;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CashRegister.API.Controllers
@@ -8,17 +11,18 @@ namespace CashRegister.API.Controllers
     [Route("api/[controller]")]
     public class ProductBillController : ControllerBase
     {
-		private readonly IProductBillService _productBillService;
-		public ProductBillController(IProductBillService productBillService)
-        {
-			_productBillService = productBillService;
+		private readonly IMediator _mediator;
+		public ProductBillController(IMediator mediator)
+		{
+			_mediator = mediator;
 		}
 
 		[HttpGet]
 		public async Task<IActionResult> GetAllProductBills()
 		{
-			var result = await _productBillService.GetAllProductBills();
-			return Ok(result);
+			var querry = new GetAllProductBillsQuerry();
+			var result = await _mediator.Send(querry);
+			return result != null ? Ok(result) : BadRequest(ModelState);
 		}
 
 		[HttpPost]
@@ -27,32 +31,18 @@ namespace CashRegister.API.Controllers
             if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
-            if (_productBillService.ProductBillExists(productId, billNumber))
-            {
-                ModelState.AddModelError("", "Product is already on the bill.");
-				return StatusCode(403, ModelState);
-			}
+			var querry = new AddProductToBillCommand(productId, billNumber, productBillDto);
+			var result = await _mediator.Send(querry);
 
-			if (!await _productBillService.AddProductToBill(productId, billNumber, productBillDto))
-                return BadRequest(ModelState);
-
-			return Ok("Product added to bill successfully!");
+			return result == true ? Ok("Added successfully") : BadRequest(ModelState);
         }
         [HttpDelete]
         public async Task<IActionResult> DeleteProductFromBill(int productId, string billNumber)
         {
-			if (!_productBillService.ProductBillExists(productId, billNumber))
-			{
-				ModelState.AddModelError("", "Product is not on the bill.");
-				return StatusCode(403, ModelState);
-			}
+			var querry = new DeleteProductFromBillCommand(billNumber, productId);
+			var result = await _mediator.Send(querry);
 
-			var productBillToDelete = await _productBillService.GetProductBill(productId, billNumber);
-
-			if (!await _productBillService.DeleteProductFromBill(productBillToDelete))
-                return BadRequest(ModelState);
-
-            return Ok("Successfully deleted");
+			return result == true ? Ok("Deleted successfully.") : BadRequest(ModelState);
         }
 
     }
