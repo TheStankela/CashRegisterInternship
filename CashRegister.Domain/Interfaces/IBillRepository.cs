@@ -11,5 +11,6 @@ namespace CashRegister.Domain.Interfaces
 		public bool DeleteBill(Bill bill);
 		public bool UpdateBill(Bill bill);
 		public bool BillExists(string billNumber);
+		public Task<Bill> GetBillByBillNumberAsNoTracking(string billNumber);
 	}
 }

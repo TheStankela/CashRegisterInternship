@@ -37,6 +37,10 @@ namespace CashRegister.Infrastructure.Repositories
 		{
 			return await _context.Bills.FirstOrDefaultAsync(x => x.BillNumber == billNumber);
 		}
+		public async Task<Bill> GetBillByBillNumberAsNoTracking(string billNumber)
+		{
+			return await _context.Bills.AsNoTracking().FirstOrDefaultAsync(x => x.BillNumber == billNumber);
+		}
 
 		public bool Save()
 		{
