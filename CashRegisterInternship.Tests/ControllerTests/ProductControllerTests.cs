@@ -12,14 +12,14 @@ namespace CashRegisterInternship.Tests.ControllerTests
 {
     public class ProductControllerTests
     {
-        private readonly Mock<IProductService> _productRepoMock = new Mock<IProductService>();
+        private readonly Mock<IProductService> _productServiceMock = new Mock<IProductService>();
         private readonly Mock<IMapper> _mapperMock = new Mock<IMapper>();
         private readonly ProductController _sut;
 
 
         public ProductControllerTests()
         {
-            _sut = new ProductController(_productRepoMock.Object);
+            _sut = new ProductController(_productServiceMock.Object);
         }
         [Fact]
         public async Task ProductController_GetAllProducts_ShouldReturnOK()
@@ -32,7 +32,6 @@ namespace CashRegisterInternship.Tests.ControllerTests
             var result = await _sut.GetAllProducts();
 
             //Assert
-            result.Should().NotBeNull();
             result.Should().BeOfType(typeof(OkObjectResult));
         }
         [Fact]
