@@ -29,14 +29,20 @@ namespace CashRegister.Application.Services
 			return _productRepository.DeleteProduct(productToDelete);
 		}
 
-		public Task<List<Product>> GetAllProductsAsync()
+		public async Task<List<ProductDto>> GetAllProductsAsync()
 		{
-			return _productRepository.GetAllProductsAsync();
+			var products = await _productRepository.GetAllProductsAsync();
+
+			var productsMapped = _mapper.Map<List<ProductDto>>(products);
+			return productsMapped;
 		}
 
-		public Task<Product> GetProductByIdAsync(int productId)
+		public async Task<ProductDto> GetProductByIdAsync(int productId)
 		{
-			return _productRepository.GetProductByIdAsync(productId);
+			var product = await _productRepository.GetProductByIdAsync(productId);
+
+			var productMapped = _mapper.Map<ProductDto>(product);
+			return productMapped;
 		}
 
 		public bool UpdateProduct(int productId, ProductDto productDto)
