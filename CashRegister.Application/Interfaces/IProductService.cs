@@ -7,8 +7,8 @@ namespace CashRegister.Application.Services
 	{
 		bool AddProduct(ProductDto productDto);
 		Task<bool> DeleteProduct(int productId);
-		Task<List<Product>> GetAllProductsAsync();
-		Task<Product> GetProductByIdAsync(int productId);
+		Task<List<ProductDto>> GetAllProductsAsync();
+		Task<ProductDto> GetProductByIdAsync(int productId);
 		bool UpdateProduct(int productId, ProductDto productDto);
 	}
 }
