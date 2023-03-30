@@ -5,12 +5,27 @@ using CashRegister.Infrastructure.Repositories;
 using CashRegister.Domain.Interfaces;
 using CashRegister.Application.Services;
 using CashRegister.Application.Interfaces;
+using FluentValidation;
+using CashRegister.API.Validators;
+using FluentValidation.AspNetCore;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services
+	.AddControllers()
+	.AddFluentValidation(options =>
+	{
+		// Validate child properties and root collection elements
+		options.ImplicitlyValidateChildProperties = true;
+		options.ImplicitlyValidateRootCollectionElements = true;
+
+		// Automatic registration of validators in assembly
+		options.RegisterValidatorsFromAssemblyContaining<ProductDtoValidator>();
+	});
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
@@ -25,6 +40,8 @@ builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductBillService, ProductBillService>();
 builder.Services.AddScoped<IPriceCalculatorService,  PriceCalculatorService>();
 builder.Services.AddScoped<IValidationService, ValidationService>();
+
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -45,7 +62,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
