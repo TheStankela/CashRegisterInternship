@@ -7,6 +7,8 @@ namespace CashRegister.Application.Interfaces
 	{
 		Task<bool> AddProductToBill(int productId, string billNumber, ProductBillDto productBillDto);
 		Task<List<ProductBill>> GetAllProductBills();
-		Task<bool> DeleteProductFromBill(int productId, string billNumber);
+		Task<bool> DeleteProductFromBill(ProductBill productBill);
+		public bool ProductBillExists(int productId, string billNumber);
+		public Task<ProductBill> GetProductBill(int productId, string billNumber);
 	}
 }
