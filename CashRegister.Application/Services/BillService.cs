@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using CashRegister.API.Dto;
+using CashRegister.Application.Dto;
 using CashRegister.Application.Interfaces;
 using CashRegister.Domain.Interfaces;
 using CashRegister.Domain.Models;
@@ -9,43 +10,58 @@ namespace CashRegister.Application.Services
 	public class BillService : IBillService
 	{
 		private readonly IBillRepository _billRepository;
-		private readonly IPriceCalculatorService _priceCalculatorService;
 		private readonly IMapper _mapper;
-		public BillService(IBillRepository billRepository,IPriceCalculatorService priceCalculatorService ,IMapper mapper)
+		
+		private readonly IPriceCalculatorService _priceCalculator;
+		public BillService(IBillRepository billRepository,IMapper mapper, IPriceCalculatorService priceCalculatorService)
 		{
 			_billRepository = billRepository;
-			_priceCalculatorService = priceCalculatorService;
 			_mapper = mapper;
+			_priceCalculator = priceCalculatorService;
 		}
-		public async Task<List<Bill>> GetAllBillsAsync()
+		public async Task<List<DisplayBillDto>> GetAllBillsAsync()
 		{
-			return await _billRepository.GetAllBillsAsync();
+			var bills = await _billRepository.GetAllBillsAsync();
+			var billsMapped = _mapper.Map<List<DisplayBillDto>>(bills);
+			return billsMapped;
 		}
-		public async Task<Bill> GetBillByBillNumberAsync(string billNumber)
+		public async Task<DisplayBillDto> GetBillByBillNumberAsync(string billNumber)
 		{
-			return await _billRepository.GetBillByBillNumberAsync(billNumber);
+			var bill = await _billRepository.GetBillByBillNumberAsync(billNumber);
+			var billMapped = _mapper.Map<DisplayBillDto>(bill);
+			return billMapped;
 		}
-		public async Task<bool> AddBill(BillDto billDto)
+		public async Task<Bill> GetBillByBillNumberAsNoTracking(string billNumber)
+		{
+			var bill = await _billRepository.GetBillByBillNumberAsNoTracking(billNumber);
+			return bill;
+		}
+		public bool AddBill(AddBillDto billDto)
 		{
 			var billMapped = _mapper.Map<Bill>(billDto);
 
 			return _billRepository.AddBill(billMapped);
 		}
-		public async Task<bool> DeleteBill(string billNumber)
+		public bool DeleteBill(Bill bill)
 		{
-			var billToDelete = await _billRepository.GetBillByBillNumberAsync(billNumber);
-
-			return _billRepository.DeleteBill(billToDelete);
+			return _billRepository.DeleteBill(bill);
 		}
-		public bool UpdateBill(string billNumber, BillDto billDto)
+		public bool UpdateBill(string billNumber, AddBillDto billDto)
 		{
-			if (! _billRepository.BillExists(billNumber))
-				return false;
-
 			var billMapped = _mapper.Map<Bill>(billDto);
 			billMapped.BillNumber = billNumber;
 
 			return _billRepository.UpdateBill(billMapped);
+		}
+
+		public async Task<DisplayBillDto> DisplayBill(DisplayBillDto billDto, string currency)
+		{
+			billDto.TotalPrice = _priceCalculator.CurrencyExchange(billDto.TotalPrice, currency);
+			return billDto;
+		}
+		public bool BillExists(string billNumber)
+		{
+			return _billRepository.BillExists(billNumber);
 		}
 	}
 }

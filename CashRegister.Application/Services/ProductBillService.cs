@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using CashRegister.API.Dto;
 using CashRegister.Application.Interfaces;
+using CashRegister.Domain.Interfaces;
 using CashRegister.Domain.Models;
 using CashRegister.Infrastructure.Repositories;
 
@@ -10,27 +11,24 @@ namespace CashRegister.Application.Services
 	{
 		private readonly IProductBillRepository _productBillRepository;
 		private readonly IMapper _mapper;
-		private readonly IProductService _productService;
-		private readonly IBillService _billService;
+		private readonly IProductRepository _productRepository;
+		private readonly IBillRepository _billRepository;
 		private readonly IPriceCalculatorService _priceCalculatorService;
 
-		public ProductBillService(IProductBillRepository productBillRepository, IPriceCalculatorService priceCalculatorService, IMapper mapper, IProductService productService, IBillService billService)
+		public ProductBillService(IProductBillRepository productBillRepository, IPriceCalculatorService priceCalculatorService, IMapper mapper, IProductRepository productRepository, IBillRepository billRepository)
 		{
 			_productBillRepository = productBillRepository;
 			_mapper = mapper;
-			_productService = productService;
+			_productRepository = productRepository;
+			_billRepository = billRepository;
 			_priceCalculatorService = priceCalculatorService;
-			_billService = billService;
 		}
 		public async Task<bool> AddProductToBill(int productId, string billNumber, ProductBillDto productBillDto)
 		{
-			if (_productBillRepository.ProductBillExists(productId, billNumber))
-				return false;
+			var bill = await _billRepository.GetBillByBillNumberAsync(billNumber);
+			var product = await _productRepository.GetProductByIdAsync(productId);
 
-			var bill = await _billService.GetBillByBillNumberAsync(billNumber);
-			var product = await _productService.GetProductByIdAsync(productId);
 			var currentTotalPrice = await _priceCalculatorService.GetTotalPrice(billNumber);
-
 
 			var productBillMapped = _mapper.Map<ProductBill>(productBillDto);
 			productBillMapped.Product = product;
@@ -38,17 +36,15 @@ namespace CashRegister.Application.Services
 			productBillMapped.ProductsPrice = product.Price * productBillMapped.ProductQuantity;
 			productBillMapped.Bill.TotalPrice = currentTotalPrice + productBillMapped.ProductsPrice;
 
+			if (productBillMapped.Bill.TotalPrice > 50000)
+				return false;
+
 			return _productBillRepository.AddProductToBill(productBillMapped);
 		}
 
-		public async Task<bool> DeleteProductFromBill(int productId, string billNumber)
+		public async Task<bool> DeleteProductFromBill(ProductBill productBill)
 		{
-			if (!_productBillRepository.ProductBillExists(productId, billNumber))
-				return false;
-
-			var productBill = await _productBillRepository.GetProductBill(productId, billNumber);
-			
-			var bill = await _billService.GetBillByBillNumberAsync(billNumber);
+			var bill = await _billRepository.GetBillByBillNumberAsync(productBill.BillNumber);
 			
 			bill.TotalPrice -= productBill.ProductsPrice;
 
@@ -58,6 +54,14 @@ namespace CashRegister.Application.Services
 		public Task<List<ProductBill>> GetAllProductBills()
 		{
 			return _productBillRepository.GetAllProductBills();
+		}
+		public bool ProductBillExists(int productId, string billNumber)
+		{
+			return _productBillRepository.ProductBillExists(productId, billNumber);
+		}
+		public async Task<ProductBill> GetProductBill(int productId, string billNumber)
+		{
+			return await _productBillRepository.GetProductBill(productId, billNumber);
 		}
 	}
 }
