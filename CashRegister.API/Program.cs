@@ -24,6 +24,7 @@ builder.Services.AddScoped<IBillService, BillService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductBillService, ProductBillService>();
 builder.Services.AddScoped<IPriceCalculatorService,  PriceCalculatorService>();
+builder.Services.AddScoped<IValidationService, ValidationService>();
 
 builder.Services.AddSwaggerGen(options =>
 {

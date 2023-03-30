@@ -1,9 +1,5 @@
-﻿using AutoMapper;
-using CashRegister.API.Dto;
+﻿using CashRegister.API.Dto;
 using CashRegister.Application.Interfaces;
-using CashRegister.Domain.Interfaces;
-using CashRegister.Domain.Models;
-using CashRegister.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CashRegister.API.Controllers
@@ -13,7 +9,6 @@ namespace CashRegister.API.Controllers
     public class ProductBillController : ControllerBase
     {
 		private readonly IProductBillService _productBillService;
-
 		public ProductBillController(IProductBillService productBillService)
         {
 			_productBillService = productBillService;
@@ -23,7 +18,6 @@ namespace CashRegister.API.Controllers
 		public async Task<IActionResult> GetAllProductBills()
 		{
 			var result = await _productBillService.GetAllProductBills();
-
 			return Ok(result);
 		}
 
@@ -33,16 +27,30 @@ namespace CashRegister.API.Controllers
             if (!ModelState.IsValid)
 				return BadRequest(ModelState);
 
+            if (_productBillService.ProductBillExists(productId, billNumber))
+            {
+                ModelState.AddModelError("", "Product is already on the bill.");
+				return StatusCode(403, ModelState);
+			}
+
 			if (!await _productBillService.AddProductToBill(productId, billNumber, productBillDto))
                 return BadRequest(ModelState);
 
 			return Ok("Product added to bill successfully!");
         }
         [HttpDelete]
-        public async Task<IActionResult> DeleteProductToBill(int productId, string billNumber)
+        public async Task<IActionResult> DeleteProductFromBill(int productId, string billNumber)
         {
-            if(!await _productBillService.DeleteProductFromBill(productId, billNumber))
-                return BadRequest();
+			if (!_productBillService.ProductBillExists(productId, billNumber))
+			{
+				ModelState.AddModelError("", "Product is not on the bill.");
+				return StatusCode(403, ModelState);
+			}
+
+			var productBillToDelete = await _productBillService.GetProductBill(productId, billNumber);
+
+			if (!await _productBillService.DeleteProductFromBill(productBillToDelete))
+                return BadRequest(ModelState);
 
             return Ok("Successfully deleted");
         }
