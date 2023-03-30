@@ -13,7 +13,6 @@ namespace CashRegisterInternship.Tests.ControllerTests
     public class ProductControllerTests
     {
         private readonly Mock<IProductService> _productServiceMock = new Mock<IProductService>();
-        private readonly Mock<IMapper> _mapperMock = new Mock<IMapper>();
         private readonly ProductController _sut;
 
 
@@ -26,7 +25,7 @@ namespace CashRegisterInternship.Tests.ControllerTests
         {
             //Arrange
             var expectedResult = Mock.Of<List<Product>>();
-            _productRepoMock.Setup(x => x.GetAllProductsAsync()).ReturnsAsync(expectedResult);
+            _productServiceMock.Setup(x => x.GetAllProductsAsync()).ReturnsAsync(expectedResult);
 
             //Act
             var result = await _sut.GetAllProducts();
@@ -40,7 +39,7 @@ namespace CashRegisterInternship.Tests.ControllerTests
             //Arrange
             var id = Mock.Of<Product>().Id;
             var expectedResult = Mock.Of<Product>();
-            _productRepoMock.Setup(x => x.GetProductByIdAsync(id)).ReturnsAsync(expectedResult);
+            _productServiceMock.Setup(x => x.GetProductByIdAsync(id)).ReturnsAsync(expectedResult);
 
             //Act
             var result = await _sut.GetProductByIdAsync(id);
@@ -54,8 +53,6 @@ namespace CashRegisterInternship.Tests.ControllerTests
 			//Arrange
 			var enteredProductDto = Mock.Of<ProductDto>();
             var mappedProduct = Mock.Of<Product>();
-
-            _mapperMock.Setup(x => x.Map<Product>(enteredProductDto)).Returns(mappedProduct);
 
 			//_productRepoMock.Setup(x => x.AddProduct(mappedProduct)).Returns(true);
 
