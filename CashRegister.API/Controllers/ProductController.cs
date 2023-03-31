@@ -13,11 +13,9 @@ namespace CashRegister.API.Controllers
 	[Route("api/[controller]")]
 	public class ProductController : ControllerBase
 	{
-		private readonly IProductService _productService;
 		private readonly IMediator _mediator;
-		public ProductController(IProductService productService, IMediator mediator)
+		public ProductController(IMediator mediator)
 		{
-			_productService = productService;
 			_mediator = mediator;
 		}
 		[HttpGet]
@@ -47,7 +45,7 @@ namespace CashRegister.API.Controllers
 
 			var querry = new AddProductCommand(productDto);
 			var result = await _mediator.Send(querry);
-			return result == true ? Ok("Successfully added.") : BadRequest(ModelState);
+			return result == true ? StatusCode(200, result) : BadRequest(ModelState);
 		}
 
 		[HttpPut]
@@ -59,7 +57,7 @@ namespace CashRegister.API.Controllers
 			var querry = new UpdateProductCommand(productId, productDto);
 			var result = await _mediator.Send(querry);
 
-			return result == true ? Ok("Updated successfully.") : BadRequest(ModelState);
+			return result == true ? StatusCode(200, true) : BadRequest(ModelState);
 		}
 
 		[HttpDelete]
@@ -68,7 +66,7 @@ namespace CashRegister.API.Controllers
 			var querry = new DeleteProductCommand(id);
 			var result = await _mediator.Send(querry);
 
-			return result == true ? Ok("Deleted successfully") : BadRequest(ModelState);
+			return result == true ? StatusCode(200, result) : BadRequest(ModelState);
 		}
 		
 	}

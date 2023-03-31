@@ -74,7 +74,7 @@ namespace CashRegister.API.Controllers
 			var querry = new DeleteBillCommand(billNumber);
 			var result = await _mediator.Send(querry);
 
-			return result == true ? Ok("Successfully deleted!") : NotFound("Bill does not exist.");
+			return result == true ? StatusCode(200, result) : NotFound("Bill does not exist.");
 		}
 	}
 }
