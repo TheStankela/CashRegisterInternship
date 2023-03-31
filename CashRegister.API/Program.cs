@@ -9,6 +9,7 @@ using FluentValidation;
 using CashRegister.API.Validators;
 using FluentValidation.AspNetCore;
 using System.Reflection;
+using CashRegister.API.Mediator.Handlers.BillHandlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,7 +42,7 @@ builder.Services.AddScoped<IProductBillService, ProductBillService>();
 builder.Services.AddScoped<IPriceCalculatorService,  PriceCalculatorService>();
 builder.Services.AddScoped<IValidationService, ValidationService>();
 
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining(typeof(CreateBillHandler)));
 
 builder.Services.AddSwaggerGen(options =>
 {

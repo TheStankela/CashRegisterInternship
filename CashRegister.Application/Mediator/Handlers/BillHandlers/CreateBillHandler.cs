@@ -3,7 +3,6 @@ using CashRegister.API.Mediator.Commands.BillCommands;
 using CashRegister.Application.Services;
 using CashRegister.Domain.Interfaces;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 
 namespace CashRegister.API.Mediator.Handlers.BillHandlers
 {

@@ -1,6 +1,5 @@
 ﻿using CashRegister.API.Dto;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 
 namespace CashRegister.API.Mediator.Commands.BillCommands
 {

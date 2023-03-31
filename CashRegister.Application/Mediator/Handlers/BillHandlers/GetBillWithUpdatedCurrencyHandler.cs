@@ -2,7 +2,6 @@
 using CashRegister.Application.Dto;
 using CashRegister.Application.Services;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
 
 namespace CashRegister.API.Mediator.Handlers.BillHandlers
 {
