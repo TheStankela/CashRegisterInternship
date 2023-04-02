@@ -2,6 +2,7 @@
 using CashRegister.API.Mediator.Commands.BillCommands;
 using CashRegister.API.Mediator.Querries.BillQuerries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CashRegister.API.Controllers
@@ -15,7 +16,7 @@ namespace CashRegister.API.Controllers
 		{
 			_mediator = mediator;
 		}
-
+		[Authorize(Roles = "Admin")]
 		[HttpGet]
 		public async Task<IActionResult> GetAllBills()
 		{
