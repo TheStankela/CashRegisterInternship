@@ -53,7 +53,7 @@ namespace CashRegister.API.Controllers
 			var querry = new CreateBillCommand(billDto);
 			var result = await _mediator.Send(querry);
 
-			return result == true ? Ok("Added successfully.") : BadRequest(ModelState);
+			return result == true ? StatusCode(200, result) : BadRequest(ModelState);
 		}
 
 		[HttpPut]
@@ -65,7 +65,7 @@ namespace CashRegister.API.Controllers
 			var querry = new UpdateBillCommand(billDto, billNumber);
 			var result = await _mediator.Send(querry);
 
-			return result == true ? Ok("Updated successfully.") : BadRequest(ModelState);
+			return result == true ? StatusCode(200, result) : BadRequest(ModelState);
 		}
 
 		[HttpDelete]

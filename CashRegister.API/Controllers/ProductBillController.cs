@@ -34,7 +34,7 @@ namespace CashRegister.API.Controllers
 			var querry = new AddProductToBillCommand(productId, billNumber, productBillDto);
 			var result = await _mediator.Send(querry);
 
-			return result == true ? Ok("Added successfully") : BadRequest(ModelState);
+			return result == true ? StatusCode(200, true) : BadRequest(ModelState);
         }
         [HttpDelete]
         public async Task<IActionResult> DeleteProductFromBill(int productId, string billNumber)
@@ -42,7 +42,7 @@ namespace CashRegister.API.Controllers
 			var querry = new DeleteProductFromBillCommand(billNumber, productId);
 			var result = await _mediator.Send(querry);
 
-			return result == true ? Ok("Deleted successfully.") : BadRequest(ModelState);
+			return result == true ? StatusCode(200, true) : BadRequest(ModelState);
         }
 
     }
