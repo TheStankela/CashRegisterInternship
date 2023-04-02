@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using CashRegister.API.Controllers;
 using CashRegister.API.Dto;
+using CashRegister.API.Mediator.Commands.BillCommands;
+using CashRegister.API.Mediator.Commands.ProductCommands;
 using CashRegister.API.Mediator.Querries.BillQuerries;
 using CashRegister.API.Mediator.Querries.ProductQuerries;
 using CashRegister.Application.Dto;
@@ -25,7 +27,7 @@ namespace CashRegisterInternship.Tests.ControllerTests
 			_sut = new BillController(_mediatorMock.Object);
 		}
 		[Fact]
-		public async Task BillController_GetAllBills_ShouldReturnList()
+		public async Task BillController_GetAllBills_ShouldReturnOKList()
 		{
 			List<DisplayBillDto> expected = new List<DisplayBillDto> { new DisplayBillDto {BillNumber = "260-0056010016113-79", 
 				PaymentMethod = "Cash", TotalPrice = 100, CreditCardNumber = "371449635398431" } };
@@ -46,7 +48,7 @@ namespace CashRegisterInternship.Tests.ControllerTests
 			Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
 		}
 		[Fact]
-		public async Task BillController_GetAllBills_ShouldReturnOKBill()
+		public async Task BillController_GetBillById_ShouldReturnOKBill()
 		{
 			DisplayBillDto expected = new DisplayBillDto
 			{
@@ -71,5 +73,94 @@ namespace CashRegisterInternship.Tests.ControllerTests
 			Assert.IsType<DisplayBillDto>(okResult.Value);
 			Assert.Equal(StatusCodes.Status200OK, okResult.StatusCode);
 		}
+		[Fact]
+		public async Task BillController_GetBillWithUpdatedCurrency_ShouldReturnBillDto()
+		{
+			string billNumber = "260-0056010016113-79";
+			string currency = "eur";
+			var expected = new DisplayBillDto { BillNumber = billNumber, TotalPrice = 100 };
+
+			var querry = new Mock<GetBillWithUpdatedCurrencyQuerry>();
+			_mediatorMock.Setup(s => s.Send(It.IsAny<GetBillWithUpdatedCurrencyQuerry>(), It.IsAny<CancellationToken>())).ReturnsAsync(expected);
+
+			//Act
+			var result = await _sut.GetBillWithUpdatedCurrency(billNumber, currency);
+			var okResult = result as ObjectResult;
+
+			//Assert
+			Assert.True(okResult is OkObjectResult);
+			Assert.IsType<DisplayBillDto> (okResult.Value);
+			Assert.Equal(okResult.Value, expected);
+			Assert.Equal(StatusCodes.Status200OK, okResult?.StatusCode);
+		}
+		[Fact]
+		public async Task BillController_AddBill_ShouldReturn200True()
+		{
+			//Arrange
+			var billDto = new AddBillDto
+			{
+				BillNumber = "260-0056010016113-79",
+				PaymentMethod = "Cash",
+				CreditCardNumber = "371449635398431"
+			};
+
+			var querry = new Mock<CreateBillCommand>();
+			_mediatorMock.Setup(m => m.Send(It.IsAny<CreateBillCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+
+			//Act
+			var result = await _sut.AddBill(billDto);
+			var objResult = result as ObjectResult;
+
+			//Assert
+			Assert.IsType<ObjectResult>(objResult);
+			Assert.IsType<bool>(objResult.Value);
+			Assert.Equal(true, objResult.Value);
+			Assert.Equal(StatusCodes.Status200OK, objResult.StatusCode);
+		}
+		[Fact]
+		public async Task BillController_UpdateBill_ShouldReturn200True()
+		{
+			//Arrange
+			string billNumber = "260-0056010016113-79";
+			var billDto = new AddBillDto
+			{
+				BillNumber = billNumber,
+				PaymentMethod = "Cash",
+				CreditCardNumber = "371449635398431"
+			};
+
+			var querry = new Mock<UpdateBillCommand>();
+			_mediatorMock.Setup(m => m.Send(It.IsAny<UpdateBillCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+
+			//Act
+			var result = await _sut.UpdateBill(billNumber, billDto);
+			var objResult = result as ObjectResult;
+
+			//Assert
+			Assert.IsType<ObjectResult>(objResult);
+			Assert.IsType<bool>(objResult.Value);
+			Assert.Equal(true, objResult.Value);
+			Assert.Equal(StatusCodes.Status200OK, objResult.StatusCode);
+		}
+		[Fact]
+		public async Task BillController_DeleteBill_ShouldReturn200True()
+		{
+			//Arrange
+			string billNumber = "260-0056010016113-79";
+
+			var querry = new Mock<DeleteBillCommand>();
+			_mediatorMock.Setup(m => m.Send(It.IsAny<DeleteBillCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+
+			//Act
+			var result = await _sut.DeleteBill(billNumber);
+			var objResult = result as ObjectResult;
+
+			//Assert
+			Assert.IsType<ObjectResult>(objResult);
+			Assert.IsType<bool>(objResult.Value);
+			Assert.Equal(true, objResult.Value);
+			Assert.Equal(StatusCodes.Status200OK, objResult.StatusCode);
+		}
+		
 	}
 }
