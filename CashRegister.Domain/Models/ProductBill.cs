@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+
 namespace CashRegister.Domain.Models
 {
     public class ProductBill

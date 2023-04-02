@@ -5,10 +5,8 @@ using CashRegister.Infrastructure.Repositories;
 using CashRegister.Domain.Interfaces;
 using CashRegister.Application.Services;
 using CashRegister.Application.Interfaces;
-using FluentValidation;
 using CashRegister.API.Validators;
 using FluentValidation.AspNetCore;
-using System.Reflection;
 using CashRegister.API.Mediator.Handlers.BillHandlers;
 
 var builder = WebApplication.CreateBuilder(args);

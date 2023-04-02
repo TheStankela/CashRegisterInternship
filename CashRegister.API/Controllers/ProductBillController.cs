@@ -1,7 +1,6 @@
 ﻿using CashRegister.API.Dto;
 using CashRegister.API.Mediator.Commands.ProductBillCommands;
 using CashRegister.API.Mediator.Querries.ProductBillQuerries;
-using CashRegister.Application.Interfaces;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

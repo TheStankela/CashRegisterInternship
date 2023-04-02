@@ -1,11 +1,8 @@
-﻿using AutoMapper;
-using CashRegister.API.Dto;
+﻿using CashRegister.API.Dto;
 using CashRegister.API.Mediator.Commands.ProductCommands;
 using CashRegister.API.Mediator.Querries.ProductQuerries;
-using CashRegister.Application.Services;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace CashRegister.API.Controllers
 {

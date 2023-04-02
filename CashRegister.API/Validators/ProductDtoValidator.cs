@@ -1,5 +1,4 @@
 ﻿using CashRegister.API.Dto;
-using CashRegister.Domain.Models;
 using FluentValidation;
 
 namespace CashRegister.API.Validators

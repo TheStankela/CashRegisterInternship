@@ -6,11 +6,6 @@ using CashRegister.Application.Services;
 using CashRegister.Domain.Interfaces;
 using CashRegister.Domain.Models;
 using Moq;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CashRegisterInternship.Tests.ServiceTests
 {
