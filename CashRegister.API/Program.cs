@@ -5,32 +5,23 @@ using CashRegister.Infrastructure.Repositories;
 using CashRegister.Domain.Interfaces;
 using CashRegister.Application.Services;
 using CashRegister.Application.Interfaces;
-using CashRegister.API.Validators;
 using FluentValidation.AspNetCore;
 using CashRegister.API.Mediator.Handlers.BillHandlers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
+using FluentValidation;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddControllers();
 
+//FluentValidation
 builder.Services
-	.AddControllers()
-	.AddFluentValidation(options =>
-	{
-		// Validate child properties and root collection elements
-		options.ImplicitlyValidateChildProperties = true;
-		options.ImplicitlyValidateRootCollectionElements = true;
+	.AddFluentValidationAutoValidation()
+	.AddFluentValidationClientsideAdapters()
+	.AddValidatorsFromAssemblyContaining<Program>();
 
-		// Automatic registration of validators in assembly
-		options.RegisterValidatorsFromAssemblyContaining<ProductDtoValidator>();
-	});
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
 //Initalizing automapper
@@ -43,9 +34,9 @@ builder.Services.AddScoped<IBillService, BillService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IProductBillService, ProductBillService>();
 builder.Services.AddScoped<IPriceCalculatorService, PriceCalculatorService>();
-builder.Services.AddScoped<IValidationService, ValidationService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
-//mediatR
+//MediatR
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining(typeof(CreateBillHandler)));
 
 
@@ -90,6 +81,7 @@ builder.Services.AddSwaggerGen(options =>
 	});
 });
 
+//Database
 builder.Services.AddDbContext<CashRegisterDBContext>(options =>
 	options.UseSqlServer(builder.Configuration.GetConnectionString("CashRegisterDBConnection")
 	));
