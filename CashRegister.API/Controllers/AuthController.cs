@@ -1,4 +1,6 @@
-﻿using CashRegister.Domain.Models;
+﻿using CashRegister.Application.Interfaces;
+using CashRegister.Domain.Models;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -13,57 +15,24 @@ namespace CashRegister.API.Controllers
 	[ApiController]
 	public class AuthController : ControllerBase
 	{
-		private readonly IConfiguration _config;
+		private readonly IAuthService _authenticationService;
 
-		public AuthController(IConfiguration config)
+		public AuthController(IAuthService authenticationService)
 		{
-			_config = config;
+			_authenticationService = authenticationService;
 		}
+
 		[AllowAnonymous]
 		[HttpPost]
 		public ActionResult Login([FromBody] UserLogin userLogin)
 		{
-
-			var user = Authenticate(userLogin);
+			var user = _authenticationService.Authenticate(userLogin);
 			if (user != null)
 			{
-				var token = GenerateToken(user);
+				var token = _authenticationService.GenerateToken(user);
 				return Ok(token);
 			}
 			return NotFound("User not found.");
-		}
-
-		private string GenerateToken(User user)
-		{
-			var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-			var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-			var claims = new[]
-			{
-				new Claim(ClaimTypes.NameIdentifier, user.Username),
-				new Claim(ClaimTypes.Role, user.Role)
-			};
-			var token = new JwtSecurityToken(_config["Jwt:Issuer"],
-				_config["Jwt:Audience"],
-				claims,
-				expires: DateTime.Now.AddMinutes(15),
-				signingCredentials: credentials);
-
-			return new JwtSecurityTokenHandler().WriteToken(token);
-		}
-
-		private User Authenticate(UserLogin userLogin)
-		{
-			var currentUser = UserConstants.Users.FirstOrDefault(u => u.Username.ToLower() == userLogin.Username.ToLower()
-																&& u.Password == userLogin.Password);
-
-			if (currentUser != null)
-			{
-				return currentUser;
-			}
-
-			return null;
-
-
 		}
 	}
 }
